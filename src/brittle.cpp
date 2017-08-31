@@ -24,6 +24,23 @@ void sha1_digest(std::string in, uint8_t out[SHA1_DIGEST_SIZE]) {
 	SHA1_Final(&context, out);
 }
 
+// Generate hex digest
+void digest_to_hex(const uint8_t digest[SHA1_DIGEST_SIZE], char *output)
+{
+    int i,j;
+    char *c = output;
+
+    for (i = 0; i < SHA1_DIGEST_SIZE/4; i++) {
+        for (j = 0; j < 4; j++) {
+            sprintf(c,"%02X", digest[i*4+j]);
+            c += 2;
+        }
+        sprintf(c, " ");
+        c += 1;
+    }
+    *(c - 1) = '\0';
+}
+
 // XOR a string (tested, working)
 std::string xor_string(std::string subject, uint8_t key[SHA1_DIGEST_SIZE]) {
 	char *outp = new char[subject.length()+1];
@@ -73,7 +90,9 @@ std::string encode(std::string in) {
 	xor_digests(hash_a, hash_b, hash_final);
 	
 	// Piece it together
-	return digest_to_string(hash_final) + xord;
+	//return digest_to_string(hash_final) + xord;
+	std::cerr << hash_a;
+	return xord;
 }
 
 // Verifies integrity of brittle file and decodes it
@@ -93,3 +112,10 @@ int main(int argc, char *argv[]) {
 		std::cout << encode(s);
 	}
 }
+
+/*
+TODO
+- check if sha1 is correct
+- debug string xor
+- check xor'd hash correct
+*/

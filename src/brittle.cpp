@@ -9,10 +9,17 @@
 
 #include<iostream>
 #include<string>
+#include "sha1.cpp"
+
+std::string xor_string(std::string subject, size_t key) {
+	
+}
 
 // Encode file to a brittle format
 std::string encode(std::string in) {
+	// Get hash of entire data
 	std::size_t hash_a = std::hash<std::string>{}(in);
+	
 }
 
 // Verifies integrity of brittle file and decodes it

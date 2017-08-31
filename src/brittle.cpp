@@ -10,6 +10,7 @@
 //#define DIGEST_LENGTH 20
 
 #include <iostream>
+#include <cstring>
 #include <string>
 #include <sstream>
 #include "sha1.cpp"
@@ -23,7 +24,7 @@ void sha1_digest(std::string in, uint8_t out[SHA1_DIGEST_SIZE]) {
 	SHA1_Final(&context, out);
 }
 
-// XOR a string
+// XOR a string (tested, working)
 std::string xor_string(std::string subject, uint8_t key[SHA1_DIGEST_SIZE]) {
 	char *outp = new char[subject.length()+1];
 	strncpy(outp, subject.c_str(), subject.length());
@@ -38,21 +39,20 @@ std::string xor_string(std::string subject, uint8_t key[SHA1_DIGEST_SIZE]) {
 	return std::string(outp);
 }
 
-// XOR hash digests
+// XOR hash digests (tested, working)
 void xor_digests(uint8_t a[SHA1_DIGEST_SIZE], uint8_t b[SHA1_DIGEST_SIZE], uint8_t out[SHA1_DIGEST_SIZE]) {
 	for(int i = 0; i < SHA1_DIGEST_SIZE; i++) {
 		out[i] = a[i] ^ b[i];
 	}
 }
 
-// Convert uint8_t array to std::string
+// Convert uint8_t array to std::string (tested, maybe working)
 std::string digest_to_string(uint8_t digest[SHA1_DIGEST_SIZE]) {
-	std::ostringstream convert;
+	std::string res;
 	for(int i = 0; i < SHA1_DIGEST_SIZE; i++) {
-		convert << (int) digest[i];
+  	res += digest[i];
 	}
-
-	return convert.str();
+	return res;
 }
 
 // Encode file to a brittle format

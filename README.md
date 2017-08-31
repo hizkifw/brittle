@@ -1,6 +1,6 @@
 # brittle
 
-A file format that becomes completely unreadable if even a single bit is wrong.
+A format that makes a file completely unreadable if even a single bit is wrong.
 
 Usage:
 

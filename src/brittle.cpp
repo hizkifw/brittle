@@ -9,8 +9,8 @@
 
 //#define DIGEST_LENGTH 20
 
-#include<iostream>
-#include<string>
+#include <iostream>
+#include <string>
 #include <sstream>
 #include "sha1.cpp"
 
@@ -25,7 +25,17 @@ void sha1_digest(std::string in, uint8_t out[SHA1_DIGEST_SIZE]) {
 
 // XOR a string
 std::string xor_string(std::string subject, uint8_t key[SHA1_DIGEST_SIZE]) {
+	char *outp = new char[subject.length()+1];
+	strncpy(outp, subject.c_str(), subject.length());
 	
+	for(int i = 0; i < subject.length(); i += SHA1_DIGEST_SIZE) {
+		for(int j = 0; j < SHA1_DIGEST_SIZE; j++) {
+			if(i + j < subject.length())
+				outp[i+j] = outp[i+j] ^ key[j];
+		}
+	}
+	
+	return std::string(outp);
 }
 
 // XOR hash digests
@@ -63,7 +73,7 @@ std::string encode(std::string in) {
 	xor_digests(hash_a, hash_b, hash_final);
 	
 	// Piece it together
-	//return 
+	return digest_to_string(hash_final) + xord;
 }
 
 // Verifies integrity of brittle file and decodes it

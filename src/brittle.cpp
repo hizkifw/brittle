@@ -13,15 +13,20 @@
 #include <cstring>
 #include <string>
 #include <sstream>
+#include <vector>
+#include <iterator>
 #include "sha1.cpp"
 
 // Generate SHA-1 digest
-void sha1_digest(std::string in, uint8_t out[SHA1_DIGEST_SIZE]) {
+void sha1_digest(char *in, size_t len, uint8_t out[SHA1_DIGEST_SIZE]) {
 	SHA1_CTX context;
 	
 	SHA1_Init(&context);
-	SHA1_Update(&context, (uint8_t*) in.c_str(), in.length());
-	SHA1_Final(&context, out);
+	SHA1_Update(&context, (uint8_t*) in, len);
+	//SHA1_Final(&context, out);
+	for(int i = 0; i < SHA1_DIGEST_SIZE; i++) {
+		out[i] = 0;
+	}
 }
 
 // Generate hex digest
@@ -41,19 +46,14 @@ void digest_to_hex(const uint8_t digest[SHA1_DIGEST_SIZE], char *output)
     *(c - 1) = '\0';
 }
 
-// XOR a string (tested, working)
-std::string xor_string(std::string subject, uint8_t key[SHA1_DIGEST_SIZE]) {
-	char *outp = new char[subject.length()+1];
-	strncpy(outp, subject.c_str(), subject.length());
-	
-	for(int i = 0; i < subject.length(); i += SHA1_DIGEST_SIZE) {
+// XOR a char vector
+void xor_chars(char *subject, size_t len, uint8_t key[SHA1_DIGEST_SIZE]) {
+	for(int i = 0; i < len; i += SHA1_DIGEST_SIZE) {
 		for(int j = 0; j < SHA1_DIGEST_SIZE; j++) {
-			if(i + j < subject.length())
-				outp[i+j] = outp[i+j] ^ key[j];
+			if(i + j < len)
+				subject[i+j] = subject[i+j] ^ key[j];
 		}
 	}
-	
-	return std::string(outp);
 }
 
 // XOR hash digests (tested, working)
@@ -63,9 +63,9 @@ void xor_digests(uint8_t a[SHA1_DIGEST_SIZE], uint8_t b[SHA1_DIGEST_SIZE], uint8
 	}
 }
 
-// Convert uint8_t array to std::string (tested, maybe working)
-std::string digest_to_string(uint8_t digest[SHA1_DIGEST_SIZE]) {
-	std::string res;
+// Convert uint8_t array to char (tested, maybe working)
+char digest_to_string(uint8_t digest[SHA1_DIGEST_SIZE]) {
+	char res;
 	for(int i = 0; i < SHA1_DIGEST_SIZE; i++) {
   	res += digest[i];
 	}
@@ -73,17 +73,18 @@ std::string digest_to_string(uint8_t digest[SHA1_DIGEST_SIZE]) {
 }
 
 // Encode file to a brittle format
-std::string encode(std::string in) {
+char encode(char *in, size_t len) {
 	// Get hash of entire file
 	uint8_t hash_a[SHA1_DIGEST_SIZE];
-	sha1_digest(in, hash_a);
+	sha1_digest(in, len, hash_a);
 	
 	// XOR file using hash A
-	std::string xord = xor_string(in, hash_a);
+	//char *xord = 
+	xor_chars(in, len, hash_a);
 	
 	// Get hash of XOR'd file
 	uint8_t hash_b[SHA1_DIGEST_SIZE];
-	sha1_digest(xord, hash_b);
+	sha1_digest(in, len, hash_b);
 	
 	// XOR hash A with hash B
 	uint8_t hash_final[SHA1_DIGEST_SIZE];
@@ -92,29 +93,37 @@ std::string encode(std::string in) {
 	// Piece it together
 	//return digest_to_string(hash_final) + xord;
 	std::cerr << hash_a;
-	return xord;
+	return *in;
 }
 
 // Verifies integrity of brittle file and decodes it
-std::string decode(std::string in) {
+char decode(char *in, size_t len) {
 	
 }
 
 int main(int argc, char *argv[]) {
 	// Read data from stdin
-	std::string s(std::istreambuf_iterator<char>(std::cin), {});
+	//char s(std::istreambuf_iterator<char>(std::cin), {});
+	std::vector<char> data(std::istream_iterator<char>{std::cin}, std::istream_iterator<char>{});
+	size_t len = data.size();
+	char dat[len+1];
+	
+	for(int i = 0; i < data.size(); i++)
+		dat[i] = data[i];
 	
 	if(argc > 1) {
 		// Assume user wants to decode
-		std::cout << decode(s);
+		std::cout << decode(dat, len);
 	} else {
 		// No arguments, encode data
-		std::cout << encode(s);
+		std::cout << encode(dat, len);
 	}
 }
 
 /*
 TODO
+- replace std::string with char arrays
+- try XOR-ing with 1's
 - check if sha1 is correct
 - debug string xor
 - check xor'd hash correct

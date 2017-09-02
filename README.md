@@ -1,13 +1,13 @@
 # brittle
 
-A format that makes a file completely unreadable if even a single bit is wrong.
+A format that makes a file completely unreadable if any part of it gets corrupted.
 
 Usage:
 
-- `./brittle file.txt out.bin`
-- `./brittle file.bin out.txt --decode`
+- `python ./brittle.py file.txt out.bin`
+- `python ./brittle.py file.bin out.txt --decode`
 
-## What it does to the file
+## How it works
 
 ### Encoding
 

@@ -1,5 +1,3 @@
-# I give up on C++
-
 import os
 import sys
 import hashlib
@@ -28,7 +26,7 @@ def encode(dat):
 	# Get key
 	key = do_xor(hash_a, hash_b)
 	
-	return key + dat
+	return 0, key + dat
 
 def decode(dat):
 	# Get hash of file
@@ -47,10 +45,10 @@ def decode(dat):
 	m.update(dat)
 	if m.digest() == hash_a:
 		print("File decoded successfully")
+		return 0, dat
 	else:
 		print("File does not match hash")
-	
-	return dat
+		return 1, dat
 
 def main():
 	# Open file in binary mode
@@ -58,13 +56,15 @@ def main():
 		inp = f.read()
 		
 		if len(sys.argv) > 3:
-			res = decode(inp)
+			status, res = decode(inp)
 		else:
-			res = encode(inp)
+			status, res = encode(inp)
 		
 		# Save output file
 		with open(sys.argv[2], "wb") as o:
 			o.write(res)
+		
+		sys.exit(status)
 	
 if __name__ == "__main__":
 	main()

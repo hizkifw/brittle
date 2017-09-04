@@ -26,9 +26,13 @@ def encode(dat):
 	# Get key
 	key = do_xor(hash_a, hash_b)
 	
-	return 0, key + dat
+	return key + dat
 
 def decode(dat):
+	# Check file validity
+	if len(dat) < 20:
+		raise Exception("Invalid file")
+	
 	# Get hash of file
 	m = hashlib.sha1()
 	m.update(dat[20:])
@@ -45,26 +49,35 @@ def decode(dat):
 	m.update(dat)
 	if m.digest() == hash_a:
 		print("File decoded successfully")
-		return 0, dat
 	else:
 		print("File does not match hash")
-		return 1, dat
+		raise Exception("File corrupted")
+	
+	return dat
+
+def usage():
+	print("Usage: {} infile outfile [--decode]".format(sys.argv[0]))
+	print("Options:")
+	print("  --decode, -d: decode infile to outfiile. if not specified, file will be encoded instead")
 
 def main():
+	if len(sys.argv) < 2:
+		return usage()
+		
 	# Open file in binary mode
 	with open(sys.argv[1], "rb") as f:
 		inp = f.read()
 		
-		if len(sys.argv) > 3:
-			status, res = decode(inp)
+		if len(sys.argv) == 4:
+			res = decode(inp)
+		elif len(sys.argv) == 3:
+			res = encode(inp)
 		else:
-			status, res = encode(inp)
+			return usage()
 		
 		# Save output file
 		with open(sys.argv[2], "wb") as o:
 			o.write(res)
-		
-		sys.exit(status)
 	
 if __name__ == "__main__":
 	main()

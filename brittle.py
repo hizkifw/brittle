@@ -68,7 +68,7 @@ def main():
 	with open(sys.argv[1], "rb") as f:
 		inp = f.read()
 		
-		if len(sys.argv) == 4:
+		if "-d" in sys.argv or "--decode" in sys.argv:
 			res = decode(inp)
 		elif len(sys.argv) == 3:
 			res = encode(inp)

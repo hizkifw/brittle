@@ -1,5 +1,7 @@
 # brittle
 
+[![Build Status](https://travis-ci.org/HizkiFW/brittle.svg?branch=master)](https://travis-ci.org/HizkiFW/brittle)
+
 A format that makes a file completely unreadable if any part of it gets corrupted.
 
 Usage:

@@ -23,4 +23,3 @@ Usage:
 2. XOR key using hash B (we get hash A)
 3. XOR file excluding key with hash A
 4. File is good if its hash matches hash A
->>>>>>> 2eb55a7522e56e712960abf37c8aaf3859009467

@@ -1,9 +1,11 @@
 """
 brittle.py
 
-Force file integrity
+Force file integrity by "encrypting" the file with itself, in a way.
 """
 
+# Stop pylint from complaining about unnecessary parentheses
+from __future__ import print_function
 import sys
 import hashlib
 
@@ -15,7 +17,7 @@ def do_xor(subject, key):
     res = []
 
     # Go through each byte in subject
-    for i in range(len(subject)):
+    for i in enumerate(subject):
         # Append XOR'd byte to results array
         res.append(bytes([subject[i] ^ key[i % len(key)]]))
 

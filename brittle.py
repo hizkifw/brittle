@@ -1,83 +1,113 @@
-import os
+"""
+brittle.py
+
+Force file integrity
+"""
+
 import sys
 import hashlib
-import base64
 
-def do_xor(a, b):
-	res = []
-	for i in range(len(a)):
-		res.append(bytes([a[i] ^ b[i % len(b)]]))
-	return b"".join(res)
+
+def do_xor(subject, key):
+    """
+    XORs two strings
+    """
+    res = []
+
+    # Go through each byte in subject
+    for i in range(len(subject)):
+        # Append XOR'd byte to results array
+        res.append(bytes([subject[i] ^ key[i % len(key)]]))
+
+    # Join array to a binary string
+    return b"".join(res)
+
 
 def encode(dat):
-	# Get hash of file
-	m = hashlib.sha1()
-	m.update(dat)
-	hash_a = m.digest()
-	
-	# XOR data with hash A
-	dat = do_xor(dat, hash_a)
-	
-	# Get hash B
-	m = hashlib.sha1()
-	m.update(dat)
-	hash_b = m.digest()
-	
-	# Get key
-	key = do_xor(hash_a, hash_b)
-	
-	return key + dat
+    """
+    Encode file to brittle format
+    """
+    # Get hash of file
+    digest = hashlib.sha1()
+    digest.update(dat)
+    hash_a = digest.digest()
+
+    # XOR data with hash A
+    dat = do_xor(dat, hash_a)
+
+    # Get hash B
+    digest = hashlib.sha1()
+    digest.update(dat)
+    hash_b = digest.digest()
+
+    # Get key
+    key = do_xor(hash_a, hash_b)
+
+    return key + dat
+
 
 def decode(dat):
-	# Check file validity
-	if len(dat) < 20:
-		raise Exception("Invalid file")
-	
-	# Get hash of file
-	m = hashlib.sha1()
-	m.update(dat[20:])
-	hash_b = m.digest()
-	
-	# Deduce hash A from hash B and key
-	hash_a = do_xor(hash_b, dat[:20])
-	
-	# Recover file
-	dat = do_xor(dat, hash_a)[20:]
-	
-	# Check file integrity
-	m = hashlib.sha1()
-	m.update(dat)
-	if m.digest() == hash_a:
-		print("File decoded successfully")
-	else:
-		print("File does not match hash")
-		raise Exception("File corrupted")
-	
-	return dat
+    """
+    Decode file from brittle format
+    """
+    # Check file validity
+    if len(dat) < 20:
+        raise Exception("Invalid file")
+
+    # Get hash of file
+    digest = hashlib.sha1()
+    digest.update(dat[20:])
+    hash_b = digest.digest()
+
+    # Deduce hash A from hash B and key
+    hash_a = do_xor(hash_b, dat[:20])
+
+    # Recover file
+    dat = do_xor(dat, hash_a)[20:]
+
+    # Check file integrity
+    digest = hashlib.sha1()
+    digest.update(dat)
+    if digest.digest() == hash_a:
+        print("File decoded successfully")
+    else:
+        print("File does not match hash")
+        raise Exception("File corrupted")
+
+    return dat
+
 
 def usage():
-	print("Usage: {} infile outfile [--decode]".format(sys.argv[0]))
-	print("Options:")
-	print("  --decode, -d: decode infile to outfiile. if not specified, file will be encoded instead")
+    """
+    Print help
+    """
+    print("Usage: {} infile outfile [--decode]".format(sys.argv[0]))
+    print("Options:")
+    print("  --decode, -d: decode infile to outfiile.")
+    print("If not specified, file will be encoded instead")
+
 
 def main():
-	if len(sys.argv) < 2:
-		return usage()
-		
-	# Open file in binary mode
-	with open(sys.argv[1], "rb") as f:
-		inp = f.read()
-		
-		if "-d" in sys.argv or "--decode" in sys.argv:
-			res = decode(inp)
-		elif len(sys.argv) == 3:
-			res = encode(inp)
-		else:
-			return usage()
-		
-		# Save output file
-		with open(sys.argv[2], "wb") as o:
-			o.write(res)
-	
+    """
+    Main function
+    """
+    if len(sys.argv) < 2:
+        return usage()
+
+    # Open file in binary mode
+    with open(sys.argv[1], "rb") as infile:
+        inp = infile.read()
+
+        if "-d" in sys.argv or "--decode" in sys.argv:
+            res = decode(inp)
+        elif len(sys.argv) == 3:
+            res = encode(inp)
+        else:
+            return usage()
+
+        # Save output file
+        with open(sys.argv[2], "wb") as outfile:
+            outfile.write(res)
+
 if __name__ == "__main__":
-	main()
+    main()

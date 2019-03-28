@@ -19,7 +19,7 @@ def do_xor(subject, key):
     # Go through each byte in subject
     for i in enumerate(subject):
         # Append XOR'd byte to results array
-        res.append(bytes([subject[i] ^ key[i % len(key)]]))
+        res.append(bytes([i[1] ^ key[i[0] % len(key)]]))
 
     # Join array to a binary string
     return b"".join(res)

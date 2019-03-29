@@ -8,3 +8,6 @@ install:
 
 script:
 - pylint brittle.py
+- echo Testing encryption and decryption
+- python brittle.py brittle.py brittle.dat
+- python brittle.py brittle.dat brittle.decr.py --decode

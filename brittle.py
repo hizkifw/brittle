@@ -110,7 +110,7 @@ def main():
         # Save output file
         with open(sys.argv[2], "wb") as outfile:
             outfile.write(res)
-    
+
     return 0
 
 if __name__ == "__main__":
